@@ -136,71 +136,242 @@ def vsub_Aff : AffPoint K n → AffPoint K n → AffVector K n
 instance : VSub (AffVector K n) (AffPoint K n) :=  { vsub := vsub_Aff n}
 
 
+
+
+
+
 /-!
-## AddSemigroup
+## Check the constractor of each instance we need to define to get an AddTorsor
+  To implament an AddTorsor
+  We need to define the following instances
+-/
+
+#check AddTorsor.mk
+/-!
+AddTorsor.mk.{u_2, u_1}
+  {G : outParam (Type u_1)}
+  {P : Type u_2}
+  [inst✝ : outParam (AddGroup G)]
+  [toAddAction : AddAction G P]
+  [toVSub : VSub G P]
+  [nonempty : Nonempty P]
+  (vsub_vadd' : ∀ (p₁ p₂ : P), p₁ -ᵥ p₂ +ᵥ p₂ = p₁)
+  (vadd_vsub' : ∀ (g : G) (p : P), g +ᵥ p -ᵥ p = g) :
+AddTorsor G P
+-/
+
+#check AddGroup.mk
+/-!
+AddGroup.mk.{u}
+  {A : Type u}
+  [toSubNegMonoid : SubNegMonoid A]
+  (add_left_neg : ∀ (a : A), -a + a = 0) :
+AddGroup A
+-/
+
+#check SubNegMonoid.mk
+/-!
+SubNegMonoid.mk.{u}
+  {G : Type u}
+  [toAddMonoid : AddMonoid G]
+  [toNeg : Neg G]
+  [toSub : Sub G]
+  (sub_eq_add_neg : ∀ (a b : G), a - b = a + -b := by intros; rfl)
+  (zsmul : ℤ → G → G)
+  (zsmul_zero' : ∀ (a : G), zsmul 0 a = 0 := by intros; rfl)
+  (zsmul_succ' : ∀ (n : ℕ) (a : G), zsmul (Int.ofNat (Nat.succ n)) a = zsmul (Int.ofNat n) a + a := by intros; rfl)
+  (zsmul_neg' : ∀ (n : ℕ) (a : G), zsmul (Int.negSucc n) a = -zsmul (↑(Nat.succ n)) a := by intros; rfl) :
+SubNegMonoid G
+-/
+
+#check AddMonoid.mk
+/-!
+AddMonoid.mk.{u}
+  {M : Type u}
+  [toAddSemigroup : AddSemigroup M]
+  [toZero : Zero M]
+  (zero_add : ∀ (a : M), 0 + a = a)
+  (add_zero : ∀ (a : M), a + 0 = a)
+  (nsmul : ℕ → M → M)
+  (nsmul_zero : ∀ (x : M), nsmul 0 x = 0 := by intros; rfl)
+  (nsmul_succ : ∀ (n : ℕ)
+  (x : M), nsmul (n + 1) x = nsmul n x + x := by intros; rfl) :
+AddMonoid M
 -/
 
 
+#check AddSemigroup.mk
+/-!
+AddSemigroup.mk.{u}
+  {G : Type u}
+  [toAdd : Add G]
+  (add_assoc : ∀ (a b c : G), a + b + c = a + (b + c)) :
+AddSemigroup G
+-/
+
+#check Zero.mk
+/-!
+Zero.mk.{u}
+  {α : Type u}
+  (zero : α) :
+Zero α
+-/
+
+#check Neg.mk
+/-!
+Neg.mk.{u}
+  {α : Type u}
+  (neg : α → α) :
+Neg α
+-/
+
+#check Sub.mk
+/-!
+Sub.mk.{u}
+  {α : Type u}
+  (sub : α → α → α) :
+Sub α
+-/
+
+#check AddAction.mk
+/-!
+AddAction.mk.{u_11, u_10}
+  {G : Type u_10}
+  {P : Type u_11}
+  [inst✝ : AddMonoid G]
+  [toVAdd : VAdd G P]
+  (zero_vadd : ∀ (p : P), 0 +ᵥ p = p)
+  (add_vadd : ∀ (g₁ g₂ : G) (p : P), g₁ + g₂ +ᵥ p = g₁ +ᵥ (g₂ +ᵥ p)) :
+AddAction G P
+-/
+
+#check VAdd.mk
+/-!
+VAdd.mk.{u, v}
+  {G : Type u}
+  {P : Type v}
+  (vadd : G → P → P) :
+VAdd G P
+-/
+
+#check VSub.mk
+/-!
+VSub.mk.{u_2, u_1}
+  {G : outParam (Type u_1)}
+  {P : Type u_2}
+  (vsub : P → P → G) :
+VSub G P
+-/
+
+#check Nonempty
+/-!
+Nonempty.{u}
+  (α : Sort u) :
+Prop
+-/
+
+
+/-!
+## Implment the required instances above for getting an AddTorsor
+-/
+
+/-!
+## VAdd
+  vector + point -> point
+-/
 def vadd_Aff : AffVector K n → AffPoint K n → AffPoint K n
-| ⟨ l1, _ ⟩, ⟨ l2, _ ⟩ => ⟨ (List.zipWith (.+.) l1 l2), sorry ⟩
+| ⟨ l1, _ ⟩, ⟨ l2, _ ⟩ => ⟨ (List.zipWith (. + .) l1 l2), sorry ⟩
+
+instance : VAdd (AffVector K n) (AffPoint K n) := { vadd := vadd_Aff n }
 
 
-instance : VAdd (AffVector K n) (AffPoint K n) :=
-{
-vadd := vadd_Aff n
-}
-
-
+-- define several AffPoint and AffVector for testing
 def P : AffPoint Rat 3 := ⟨ ⟨[1/2, -1/3, 1], by simp⟩ ⟩
 def v : AffVector Rat 3 := ⟨ ⟨[1/3, 5/4, -3], by simp⟩ ⟩
 def w : AffVector Rat 3 := ⟨ ⟨[-1/6, 2/3, 7/5], by simp⟩ ⟩
+
+-- testint the vadd_Aff
 #eval toString (v +ᵥ P)           -- (Pt [5/6, 11/12, -2])
 #eval toString (w +ᵥ (v +ᵥ P))    -- (Pt [2/3, 19/12, -3/5])
 
 
+
+
+/-!
+## Add
+  vector + vector -> vector
+-/
 def add_affine_vector : AffVector K n → AffVector K n → AffVector K n
 | ⟨ l1, _ ⟩, ⟨ l2, _ ⟩ => ⟨ (List.zipWith (.+.) l1 l2), sorry ⟩
 
-
 instance : Add (AffVector K n) := { add := add_affine_vector n }
 
-
+-- testint the add_affine_vector
+#eval toString ((v +ᵥ w))       -- (Vc [1/6, 23/12, -8/5])
 #eval toString ((v + w) +ᵥ P)   -- (Pt [2/3, 19/12, -3/5])
 
 
 
 
+/-!
+## Zero
+-/
+#check Zero.mk
+/-!
+Zero.mk.{u}
+  {α : Type u}
+  (zero : α) :
+Zero α
+-/
 def zero_affine_vector : AffVector K n := ⟨ ⟨ List.replicate n 0, by simp [List.length_replicate] ⟩ ⟩
+
 instance : Zero (AffVector K n) := ⟨ zero_affine_vector n ⟩
--- def zero_affine_point : AffPoint K n := ⟨ ⟨ List.replicate n 0, by simp [List.length_replicate] ⟩ ⟩
--- instance : Zero (AffPoint K n) := ⟨ zero_affine_point n ⟩
+
 #check (0 : (AffVector K n))
 #eval toString (v + 0) -- (Vc [1/3, 5/4, -3])
 #eval toString (0 + v) -- (Vc [1/3, 5/4, -3])
 
 
+
+
+/-!
+## AddSemigroup
+-/
 #check AddSemigroup.mk
-
-
+/-!
+AddSemigroup.mk.{u}
+  {G : Type u}
+  [toAdd : Add G]
+  (add_assoc : ∀ (a b c : G), a + b + c = a + (b + c)) :
+AddSemigroup G
+-/
 instance : AddSemigroup (AffVector K n) := {
   add_assoc := sorry
 }
 
 
+
+
 /-!
 ## AddMonoid
 -/
-
-
 #check AddMonoid.mk
-
-
+/-!
+AddMonoid.mk.{u}
+  {M : Type u}
+  [toAddSemigroup : AddSemigroup M]
+  [toZero : Zero M]
+  (zero_add : ∀ (a : M), 0 + a = a)
+  (add_zero : ∀ (a : M), a + 0 = a)
+  (nsmul : ℕ → M → M)
+  (nsmul_zero : ∀ (x : M), nsmul 0 x = 0 := by intros; rfl)
+  (nsmul_succ : ∀ (n : ℕ)
+  (x : M), nsmul (n + 1) x = nsmul n x + x := by intros; rfl) :
+AddMonoid M
+-/
 def affine_vector_nsmul : ℕ → (AffVector K n) → (AffVector K n)
 | 0,      _ => ⟨ ⟨ List.replicate n 0, by simp [List.length_replicate] ⟩ ⟩
 | (n+1),  v => v + (affine_vector_nsmul n v)
-
-
-
 
 instance : AddMonoid (AffVector K n) := {
   zero_add := sorry
@@ -210,47 +381,69 @@ instance : AddMonoid (AffVector K n) := {
   nsmul_succ:=sorry
 }
 
-
 #eval toString (3 • w)      -- (Vc [-1/2, 2, 21/5])
 #eval toString (0 • w)      -- (Vc [0, 0, 0])
 #eval toString (0 + w)      -- (Vc [-1/6, 2/3, 7/5])
 #eval toString (w + 0)      -- (Vc [-1/6, 2/3, 7/5])
 
 
+
+
 /-!
 ## AddAction
 -/
-
-
+#check AddAction.mk
+/-!
+AddAction.mk.{u_11, u_10}
+  {G : Type u_10}
+  {P : Type u_11}
+  [inst✝ : AddMonoid G]
+  [toVAdd : VAdd G P]
+  (zero_vadd : ∀ (p : P), 0 +ᵥ p = p)
+  (add_vadd : ∀ (g₁ g₂ : G) (p : P), g₁ + g₂ +ᵥ p = g₁ +ᵥ (g₂ +ᵥ p)) :
+AddAction G P
+-/
 instance : AddAction (AffVector K n) (AffPoint K n) := {
-    zero_vadd := sorry,
-    add_vadd := sorry
-  }
-
+  zero_vadd := sorry,
+  add_vadd := sorry
+}
 
 #eval ((2 • v) + (3 • w) + (0 • v)) +ᵥ P  -- (Pt [2/3, 25/6, -4/5])
 
 
+
+
 /-!
-## SubNegMonoid
+## Neg
 -/
-
-
-#check SubNegMonoid.mk
-
-
+#check Neg.mk
+/-!
+Neg.mk.{u}
+  {α : Type u}
+  (neg : α → α) :
+Neg α
+-/
 def neg_affine_vector : AffVector K n → AffVector K n
 | ⟨ l, _ ⟩ => ⟨ (List.map (fun x => -x) l), sorry ⟩
 
-
 instance : Neg (AffVector K n) := { neg := neg_affine_vector n }
-
 
 #eval toString (-w)           -- (Vc [1/6, -2/3, -7/5])
 
 
-instance : Sub (AffVector K n) := { sub := fun v w => v + (-w) }
 
+
+/-!
+## Sub
+-/
+#check Sub.mk
+/-!
+Sub.mk.{u}
+  {α : Type u}
+  (sub : α → α → α) :
+Sub α
+-/
+instance : Sub (AffVector K n) := { sub := fun v w => v + (-w) }
 
 #eval toString (v - w)          -- (Vc [1/2, 7/12, -22/5])
 #eval toString ((v - w) +ᵥ P)   -- (Pt [1, 1/4, -17/5])
@@ -259,12 +452,26 @@ instance : Sub (AffVector K n) := { sub := fun v w => v + (-w) }
 
 
 
+/-!
+## SubNegMonoid
+-/
+#check SubNegMonoid.mk
+/-!
+SubNegMonoid.mk.{u}
+  {G : Type u}
+  [toAddMonoid : AddMonoid G]
+  [toNeg : Neg G]
+  [toSub : Sub G]
+  (sub_eq_add_neg : ∀ (a b : G), a - b = a + -b := by intros; rfl)
+  (zsmul : ℤ → G → G)
+  (zsmul_zero' : ∀ (a : G), zsmul 0 a = 0 := by intros; rfl)
+  (zsmul_succ' : ∀ (n : ℕ) (a : G), zsmul (Int.ofNat (Nat.succ n)) a = zsmul (Int.ofNat n) a + a := by intros; rfl)
+  (zsmul_neg' : ∀ (n : ℕ) (a : G), zsmul (Int.negSucc n) a = -zsmul (↑(Nat.succ n)) a := by intros; rfl) :
+SubNegMonoid G
+-/
 def affine_vector_zsmul : ℤ → (AffVector K n) → (AffVector K n)
 | (Int.ofNat n), r => n • r
 | (Int.negSucc n), r => -((n+1) • r)
-
-
-
 
 instance : SubNegMonoid (AffVector K n) := {
   sub_eq_add_neg := sorry,
@@ -275,45 +482,66 @@ instance : SubNegMonoid (AffVector K n) := {
 }
 
 
+
+
 /-!
 ## AddGroup
 -/
-
-
-
-
 #check AddGroup.mk
-
-
+/-!
+AddGroup.mk.{u}
+  {A : Type u}
+  [toSubNegMonoid : SubNegMonoid A]
+  (add_left_neg : ∀ (a : A), -a + a = 0) :
+AddGroup A
+-/
 instance : AddGroup (AffVector K n) := {
   add_left_neg := sorry
 }
-
 
 #eval toString (w)        -- (Vc [-1/6, 2/3, 7/5])
 #eval toString (-4 • w)   -- (Vc [2/3, -8/3, -28/5])
 #eval toString (-4 • w + 3 • v -5 • w)   -- (Vc [5/2, -9/4, -108/5])
 
 
+
+
 /-!
-## AddTorsor
+## Nonempty
 -/
-
-
-#check AddTorsor.mk
-
-
+#check Nonempty
+/-!
+Nonempty.{u}
+  (α : Sort u) :
+Prop
+-/
 instance : Nonempty (AffPoint K n) := ⟨ ⟨ List.replicate n 0, by simp [List.length_replicate] ⟩ ⟩
 
 
-#eval P -ᵥ P +ᵥ P
 
+
+/-!
+## AddTorsor
+-/
+#check AddTorsor.mk
+/-!
+AddTorsor.mk.{u_2, u_1}
+  {G : outParam (Type u_1)}
+  {P : Type u_2}
+  [inst✝ : outParam (AddGroup G)]
+  [toAddAction : AddAction G P]
+  [toVSub : VSub G P]
+  [nonempty : Nonempty P]
+  (vsub_vadd' : ∀ (p₁ p₂ : P), p₁ -ᵥ p₂ +ᵥ p₂ = p₁)
+  (vadd_vsub' : ∀ (g : G) (p : P), g +ᵥ p -ᵥ p = g) :
+AddTorsor G P
+-/
+#eval P -ᵥ P +ᵥ P
 
 instance : AddTorsor (AffVector K n) (AffPoint K n) :=
 {
   vsub_vadd' := sorry
   vadd_vsub' := sorry
 }
-
 
 #eval (v + (P -ᵥ P)) +ᵥ P  -- (Pt [5/6, 11/12, -2])
