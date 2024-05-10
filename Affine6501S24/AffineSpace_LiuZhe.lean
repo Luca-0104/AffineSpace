@@ -126,11 +126,11 @@ class VSub (G : outParam (Type*)) (P : Type*) where
 
 
 def vsub_Aff : AffPoint K n → AffPoint K n → AffVector K n
-| ⟨ l1, h1 ⟩, ⟨ l2, h2 ⟩ =>
+| ⟨ l1, pl1 ⟩, ⟨ l2, pl2 ⟩ =>
   ⟨
     (List.zipWith (. - .) l1 l2),
     by
-    rw [List.length_zipWith, h1, h2]
+    rw [List.length_zipWith, pl1, pl2]
     apply min_eq_left
     exact Nat.le_refl n
   ⟩
@@ -281,14 +281,14 @@ Prop
   vector + point -> point
 -/
 def vadd_Aff : AffVector K n → AffPoint K n → AffPoint K n
-| ⟨ l1, h1 ⟩, ⟨ l2, h2 ⟩ => ⟨ (List.zipWith (. + .) l1 l2),
+| ⟨ l1, pl1 ⟩, ⟨ l2, pl2 ⟩ => ⟨ (List.zipWith (. + .) l1 l2),
     by
-      have hlen : List.length (List.zipWith (. + .) l1 l2) = n :=
+      have plen : List.length (List.zipWith (. + .) l1 l2) = n :=
       by
-        rw [List.length_zipWith, h1, h2]
+        rw [List.length_zipWith, pl1, pl2]
         apply min_eq_left
         exact Nat.le_refl n
-      exact hlen
+      exact plen
  ⟩
 
 instance : VAdd (AffVector K n) (AffPoint K n) := { vadd := vadd_Aff n }

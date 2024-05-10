@@ -126,14 +126,21 @@ class VSub (G : outParam (Type*)) (P : Type*) where
 
 
 def vsub_Aff : AffPoint K n → AffPoint K n → AffVector K n
-| ⟨ l1, h1 ⟩, ⟨ l2, h2 ⟩ =>
+| ⟨ l1, pl1 ⟩, ⟨ l2, pl2 ⟩ =>
   ⟨
     (List.zipWith (. - .) l1 l2),
     by
-    rw [List.length_zipWith, h1, h2]
+    rw [List.length_zipWith, pl1, pl2]
     apply min_eq_left
     exact Nat.le_refl n
   ⟩
+
+-- def vsub_Aff : AffPoint K n → AffPoint K n → AffVector K n
+-- | ⟨ l1, pl1 ⟩, ⟨ l2, pl2 ⟩ =>
+--   ⟨
+--     (List.zipWith (. - .) l1 l2),
+--     sorry
+--   ⟩
 
 
 instance : VSub (AffVector K n) (AffPoint K n) :=  { vsub := vsub_Aff n}
@@ -281,15 +288,20 @@ Prop
   vector + point -> point
 -/
 def vadd_Aff : AffVector K n → AffPoint K n → AffPoint K n
-| ⟨ l1, h1 ⟩, ⟨ l2, h2 ⟩ => ⟨ (List.zipWith (. + .) l1 l2),
+| ⟨ l1, pl1 ⟩, ⟨ l2, pl2 ⟩ => ⟨ (List.zipWith (. + .) l1 l2),
     by
-      have hlen : List.length (List.zipWith (. + .) l1 l2) = n :=
+      have plen : List.length (List.zipWith (. + .) l1 l2) = n :=
       by
-        rw [List.length_zipWith, h1, h2]
+        rw [List.length_zipWith, pl1, pl2]
         apply min_eq_left
         exact Nat.le_refl n
-      exact hlen
+      exact plen
  ⟩
+
+-- def vadd_Aff : AffVector K n → AffPoint K n → AffPoint K n
+-- | ⟨ l1, pl1 ⟩, ⟨ l2, pl2 ⟩ => ⟨ (List.zipWith (. + .) l1 l2),
+--     sorry
+--  ⟩
 
 instance : VAdd (AffVector K n) (AffPoint K n) := { vadd := vadd_Aff n }
 
@@ -311,7 +323,15 @@ instance : VAdd (AffVector K n) (AffPoint K n) := { vadd := vadd_Aff n }
   vector + vector -> vector
 -/
 def add_affine_vector : AffVector K n → AffVector K n → AffVector K n
-| ⟨ l1, _ ⟩, ⟨ l2, _ ⟩ => ⟨ (List.zipWith (.+.) l1 l2), sorry ⟩
+| ⟨ l1, pl1 ⟩, ⟨ l2, pl2 ⟩ => ⟨ (List.zipWith (. + .) l1 l2),
+  by
+    have plen : List.length (List.zipWith (. + .) l1 l2) = n :=
+    by
+      rw [List.length_zipWith, pl1, pl2]
+      apply min_eq_left
+      exact Nat.le_refl n
+    exact plen
+ ⟩
 
 instance : Add (AffVector K n) := { add := add_affine_vector n }
 
@@ -449,7 +469,13 @@ Neg.mk.{u}
 Neg α
 -/
 def neg_affine_vector : AffVector K n → AffVector K n
-| ⟨ l, _ ⟩ => ⟨ (List.map (fun x => -x) l), sorry ⟩
+| ⟨ l, pl ⟩ => ⟨ (List.map (fun x => -x) l),
+  by
+    have h₁ : List.length (List.map (fun x => -x) l) = List.length l :=
+    by
+      rw [List.length_map]
+    exact Eq.trans h₁ pl
+ ⟩
 
 instance : Neg (AffVector K n) := { neg := neg_affine_vector n }
 
