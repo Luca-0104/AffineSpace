@@ -295,13 +295,13 @@ instance : VAdd (AffVector K n) (AffPoint K n) := { vadd := vadd_Aff n }
 
 
 -- define several AffPoint and AffVector for testing
--- def P : AffPoint Rat 3 := ⟨ ⟨[1/2, -1/3, 1], by simp⟩ ⟩
--- def v : AffVector Rat 3 := ⟨ ⟨[1/3, 5/4, -3], by simp⟩ ⟩
--- def w : AffVector Rat 3 := ⟨ ⟨[-1/6, 2/3, 7/5], by simp⟩ ⟩
+def P : AffPoint Rat 3 := ⟨ ⟨[1/2, -1/3, 1], by simp⟩ ⟩
+def v : AffVector Rat 3 := ⟨ ⟨[1/3, 5/4, -3], by simp⟩ ⟩
+def w : AffVector Rat 3 := ⟨ ⟨[-1/6, 2/3, 7/5], by simp⟩ ⟩
 
--- -- testint the vadd_Aff
--- #eval toString (v +ᵥ P)           -- (Pt [5/6, 11/12, -2])
--- #eval toString (w +ᵥ (v +ᵥ P))    -- (Pt [2/3, 19/12, -3/5])
+-- testint the vadd_Aff
+#eval toString (v +ᵥ P)           -- (Pt [5/6, 11/12, -2])
+#eval toString (w +ᵥ (v +ᵥ P))    -- (Pt [2/3, 19/12, -3/5])
 
 
 
@@ -315,9 +315,9 @@ def add_affine_vector : AffVector K n → AffVector K n → AffVector K n
 
 instance : Add (AffVector K n) := { add := add_affine_vector n }
 
--- -- testint the add_affine_vector
--- #eval toString ((v +ᵥ w))       -- (Vc [1/6, 23/12, -8/5])
--- #eval toString ((v + w) +ᵥ P)   -- (Pt [2/3, 19/12, -3/5])
+-- testint the add_affine_vector
+#eval toString ((v +ᵥ w))       -- (Vc [1/6, 23/12, -8/5])
+#eval toString ((v + w) +ᵥ P)   -- (Pt [2/3, 19/12, -3/5])
 
 
 
@@ -337,8 +337,8 @@ def zero_affine_vector : AffVector K n := ⟨ ⟨ List.replicate n 0, by simp [L
 instance : Zero (AffVector K n) := ⟨ zero_affine_vector n ⟩
 
 #check (0 : (AffVector K n))
--- #eval toString (v + 0) -- (Vc [1/3, 5/4, -3])
--- #eval toString (0 + v) -- (Vc [1/3, 5/4, -3])
+#eval toString (v + 0) -- (Vc [1/3, 5/4, -3])
+#eval toString (0 + v) -- (Vc [1/3, 5/4, -3])
 
 
 
@@ -356,19 +356,26 @@ AddSemigroup G
 -/
 
 -- a proof of add_assoc with a concise tactic script
--- theorem aff_add_assoc : ∀ (n : Nat) (a b c : (AffVector K n)), a + b + c = a + (b + c) :=
--- by
---   induction n with
---   | zero => rfl
---   | succ m ih =>
---     exact ih
+theorem aff_add_assoc : ∀ (n : Nat) (a b c : (AffVector K n)), a + b + c = a + (b + c)
+| Nat.zero, a, b, c => by
+  cases a
+  repeat {
+    cases b
+    repeat {
+      cases c
+      repeat { rfl }
+    }
+  }
+| Nat.succ n, a, b, c => by
+  cases a
+  repeat {
+    cases b
+    repeat {
+      cases c
+      repeat { rfl }
+    }
+  }
 
--- theorem aff_add_assoc : ∀ (n : Nat) (a b c : (AffVector K n)), a + b + c = a + (b + c) :=
--- by
---   intros n a b c
---   induction n with
---   | zero => repeat { rfl }
---   | succ m ih => repeat { rfl }
 
 instance : AddSemigroup (AffVector K n) := {
   add_assoc := sorry
@@ -406,10 +413,10 @@ instance : AddMonoid (AffVector K n) := {
   nsmul_succ:=sorry
 }
 
--- #eval toString (3 • w)      -- (Vc [-1/2, 2, 21/5])
--- #eval toString (0 • w)      -- (Vc [0, 0, 0])
--- #eval toString (0 + w)      -- (Vc [-1/6, 2/3, 7/5])
--- #eval toString (w + 0)      -- (Vc [-1/6, 2/3, 7/5])
+#eval toString (3 • w)      -- (Vc [-1/2, 2, 21/5])
+#eval toString (0 • w)      -- (Vc [0, 0, 0])
+#eval toString (0 + w)      -- (Vc [-1/6, 2/3, 7/5])
+#eval toString (w + 0)      -- (Vc [-1/6, 2/3, 7/5])
 
 
 
@@ -433,7 +440,7 @@ instance : AddAction (AffVector K n) (AffPoint K n) := {
   add_vadd := sorry
 }
 
--- #eval ((2 • v) + (3 • w) + (0 • v)) +ᵥ P  -- (Pt [2/3, 25/6, -4/5])
+#eval ((2 • v) + (3 • w) + (0 • v)) +ᵥ P  -- (Pt [2/3, 25/6, -4/5])
 
 
 
@@ -453,7 +460,7 @@ def neg_affine_vector : AffVector K n → AffVector K n
 
 instance : Neg (AffVector K n) := { neg := neg_affine_vector n }
 
--- #eval toString (-w)           -- (Vc [1/6, -2/3, -7/5])
+#eval toString (-w)           -- (Vc [1/6, -2/3, -7/5])
 
 
 
@@ -470,9 +477,9 @@ Sub α
 -/
 instance : Sub (AffVector K n) := { sub := fun v w => v + (-w) }
 
--- #eval toString (v - w)          -- (Vc [1/2, 7/12, -22/5])
--- #eval toString ((v - w) +ᵥ P)   -- (Pt [1, 1/4, -17/5])
--- #eval toString (v - 0)          -- (Vc [1/3, 5/4, -3])
+#eval toString (v - w)          -- (Vc [1/2, 7/12, -22/5])
+#eval toString ((v - w) +ᵥ P)   -- (Pt [1, 1/4, -17/5])
+#eval toString (v - 0)          -- (Vc [1/3, 5/4, -3])
 
 
 
@@ -524,9 +531,9 @@ instance : AddGroup (AffVector K n) := {
   add_left_neg := sorry
 }
 
--- #eval toString (w)        -- (Vc [-1/6, 2/3, 7/5])
--- #eval toString (-4 • w)   -- (Vc [2/3, -8/3, -28/5])
--- #eval toString (-4 • w + 3 • v -5 • w)   -- (Vc [5/2, -9/4, -108/5])
+#eval toString (w)        -- (Vc [-1/6, 2/3, 7/5])
+#eval toString (-4 • w)   -- (Vc [2/3, -8/3, -28/5])
+#eval toString (-4 • w + 3 • v -5 • w)   -- (Vc [5/2, -9/4, -108/5])
 
 
 
@@ -561,7 +568,7 @@ AddTorsor.mk.{u_2, u_1}
   (vadd_vsub' : ∀ (g : G) (p : P), g +ᵥ p -ᵥ p = g) :
 AddTorsor G P
 -/
--- #eval P -ᵥ P +ᵥ P
+#eval P -ᵥ P +ᵥ P
 
 instance : AddTorsor (AffVector K n) (AffPoint K n) :=
 {
@@ -569,4 +576,4 @@ instance : AddTorsor (AffVector K n) (AffPoint K n) :=
   vadd_vsub' := sorry
 }
 
--- #eval (v + (P -ᵥ P)) +ᵥ P  -- (Pt [5/6, 11/12, -2])
+#eval (v + (P -ᵥ P)) +ᵥ P  -- (Pt [5/6, 11/12, -2])
