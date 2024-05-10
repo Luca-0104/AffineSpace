@@ -418,6 +418,18 @@ def affine_vector_nsmul : ℕ → (AffVector K n) → (AffVector K n)
 | 0,      _ => ⟨ ⟨ List.replicate n 0, by simp [List.length_replicate] ⟩ ⟩
 | (n+1),  v => v + (affine_vector_nsmul n v)
 
+-- open AffVector
+
+-- theorem aff_zero_add : ∀ (a : (AffVector K n)), 0 + a = a
+-- | zero => rfl
+-- | succ a => congrArg succ (zero_add a)
+
+-- theorem aff_add_zero (a : (AffVector K n)) : a + 0 = a := rfl
+
+-- theorem aff_zero_add : ∀ (a : (AffVector K n)), vadd_Aff n a zero = a
+--   | zero   => by simp [vadd_Aff]
+--   | succ n => by simp [add_affine_vector, aff_zero_add]
+
 instance : AddMonoid (AffVector K n) := {
   zero_add := sorry
   add_zero := sorry
