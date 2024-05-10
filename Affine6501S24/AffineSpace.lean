@@ -390,6 +390,25 @@ AddSemigroup G
 --   | zero => repeat { rfl }
 --   | succ m ih => repeat { rfl }
 
+-- theorem aff_add_assoc (a b c : (AffVector K n)) : a + b + c = a + (b + c)
+-- | zero => by simp [add_affine_vector]
+-- | succ n => by simp [add_affine_vector, zero_add]
+
+-- theorem aff_add_assoc (a b c : AffVector K n): add_affine_vector n (add_affine_vector n a b) c =  add_affine_vector n a (add_affine_vector n b c)
+-- | zero => by simp [add_affine_vector]
+-- | succ n => by simp [add_affine_vector, zero_add]
+
+-- theorem aff_add_assoc : ∀ (a b c : (AffVector K n)), a + b + c = a + (b + c) :=
+--   match a, b, c with
+--   | ⟨ l₁, h1 ⟩, ⟨ l₂, h2 ⟩, ⟨ l₃, h3 ⟩ =>
+--     by
+--     have plen : a + b + c = a + (b + c) :=
+--     by
+--       rw [List.length_zipWith, h1, h2, h3]
+--       apply min_eq_left
+--       exact Nat.le_refl n
+--     exact plen
+
 instance : AddSemigroup (AffVector K n) := {
   add_assoc := sorry
 }
@@ -426,9 +445,9 @@ def affine_vector_nsmul : ℕ → (AffVector K n) → (AffVector K n)
 
 -- theorem aff_add_zero (a : (AffVector K n)) : a + 0 = a := rfl
 
--- theorem aff_zero_add : ∀ (a : (AffVector K n)), vadd_Aff n a zero = a
---   | zero   => by simp [vadd_Aff]
---   | succ n => by simp [add_affine_vector, aff_zero_add]
+-- theorem aff_zero_add : ∀ (a : (AffVector K n)), add_affine_vector n a zero = a
+--   | zero   => by simp [add_affine_vector]
+--   | succ a => by simp [add_affine_vector n, aff_zero_add]
 
 instance : AddMonoid (AffVector K n) := {
   zero_add := sorry
